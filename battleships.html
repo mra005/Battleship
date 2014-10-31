@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+   <html>
+   <head>
+   <meta charset="UTF-8">
+   <title> Battleships! </title>
+   <link rel="icon" type="image/x-icon" href="images/favicon5.ico" />
+   <style type="text/css">
+   body{font-family:arial; }
+   .main{ padding:1.7em; border: 4px solid orange; border-radius:20px;}
+   .wins{border: 2px solid black;float:right;}
+   h2{text-align:center; color:orange;text-shadow: 2px 1px 2px darkgrey;}
+   table {border-collapse:collapse;border:3px solid white;}
+   th {border:2px solid black; color: orange;}
+   td {height: 40px; width:40px !important; border:2px solid black; text-align:center;}
+   .chat {text-align: center; color: orange; box-shadow: 5px 5px 5px #888888; border: 4px solid orange; border: 3px solid orange; border-radius:20px; background-color: white; position: fixed; top: 110px; right:0px; width: 250px; height: 400px;}
+   .veiw{border-top: 3px solid orange; border-bottom: 3px solid orange; height: 305px; overflow: scroll;text-align: left; color: grey; padding: 0px 6px 0px 6px;}
+   </style>
+   <script type="text/javascript" src="js/ajaxReq.js"></script>
+   <script type="text/javascript">
+   var numbers;
+   numbers = [100];
+   /*******************************************************
+	Helper functions
+   ********************************************************/
+	function webServerError(status, statusText, dest)
+		{
+			dest.innerHTML = "Web Server Error with status number: " +
+                 status + " and Status Text: " + statusText;
+            
+		}
+
+		/*---------------------------------------------------*/
+
+		function successFunc(wall, dest)
+		{
+			dest.innerHTML = wall;
+		}
+		
+		/*---------------------------------------------------*/
+		
+		function successFuncT(msg, dest)
+		{ var x = 0, o = 0;
+		    var resp=msg.split('|');
+			for(i = 0; i < resp.length; i++)
+			{
+			if(resp[i]=="x")
+			{
+			// skey = resp[1];
+			// doRefresh();
+			 document.getElementById(i + 1).innerHTML="X";
+  			 document.getElementById(i + 1).style.color= "white";
+  			 document.getElementById(i + 1).style.backgroundColor= "red";
+  			 numbers[i] = "X";
+  			 checkWin("x", i);
+  			 x++;
+			 }
+			 else if(resp[i]=="o")
+			 {
+			 document.getElementById(i + 1).innerHTML="O";
+  			 document.getElementById(i + 1).style.color= "white";
+  			 document.getElementById(i + 1).style.backgroundColor= "blue";
+  			 numbers[i] = "O";
+  			 checkWin("o", i);
+  			 o++
+			 }
+			 }
+			 if(x>o)
+			 click=2;
+			 else
+			 click=1;
+		 }
+		
+		/*---------------------------------------------------*/
+	
+   /************************************************************************
+   Event handlers
+   *************************************************************************/   
+    var x, o, click, oWin, xWin, cat, soundfile, moves = 0, countup = 0, countdown = 0;
+        click=1;
+        x = 0;
+        o = 0;
+        oWin =0;
+        xWin =0;
+        cat = 0;
+        soundfile = "audio/button3.mp3";
+        
+	var myVar=setInterval(function(){doRefresh()},5000);  
+	var myVar2=setInterval(function(){doRefreshTwo()},2500);
+        
+    function playsound(){
+		document.getElementById("soundeffect").innerHTML=
+		 "<embed src=\""+soundfile+"\" hidden=\"true\" autostart=\"true\" loop=\"false\" />";
+	}
+	//-------------Send Message
+	function doSend() //*** Event Handler for a button click
+   {var data;
+	data = document.getElementById("Post").value;
+                          
+	ajaxRequestPost("chat.cgi", 
+                             data, 
+                             "text/plain", true, 
+                             document.getElementById("chat"),
+                             document.getElementById("chat"),
+                             successFunc, webServerError); 
+    document.getElementById("Post").value = "";
+   }
+   
+   //-------------Send Move
+	function doMove(number, xo) //*** Event Handler for a button click
+   {var data;
+	data = xo + "|" + number;
+                          
+	ajaxRequestPost("move.cgi", 
+                             data, 
+                             "text/plain", true, 
+                             document.getElementById("chat"),
+                             document.getElementById("chat"),
+                             successFuncT, webServerError); 
+   }
+   //-----------------------------------------------------------------------
+   
+    
+   function doRefresh() //*** Event Handler for a button click
+   {
+   var data;
+	data = "";
+                          
+	ajaxRequestPost("refresh.cgi", 
+                             data, 
+                             "text/plain", true, 
+                             document.getElementById("chat"),
+                             document.getElementById("chat"),
+                             successFunc, webServerError); 
+   }
+   
+   //-----------------------------------------------------------------------
+   
+   function doRefreshTwo() //*** Event Handler for a button click
+   {
+   var data;
+	data = "";
+                          
+	ajaxRequestPost("refresh2.cgi", 
+                             data, 
+                             "text/plain", true, 
+                             document.getElementById("chat"),
+                             document.getElementById("chat"),
+                             successFuncT, webServerError); 
+   }
+   
+   //-----------------------------------------------------------------------
+   
+    function winner(h)
+    { 
+    if (h=="x")
+    {
+    xWin+=1;
+    document.getElementById(h).innerHTML= xWin;
+    alert("X Wins!");
+    doNew();
+    }
+    if (h=="o")
+    {
+    oWin+=1;
+    document.getElementById(h).innerHTML= oWin;
+    alert("O Wins!");
+    doNew();
+    }
+    if (h=="cat")
+    {
+    cat+=1;
+    document.getElementById(h).innerHTML= cat;
+    alert("Cats Game!");
+    doNew();
+    }
+    }
+	
+	//-----------------------Counter Functions
+	
+    function CountUp(id, xo) {
+        countup = 1;
+        id -= 10;
+        while(numbers[id] == xo){
+          id -= 10;
+          countup ++;
+        }
+        return countup;
+    }
+    function CountDown(id, xo) {
+        countdown = 1;
+        id += 10;
+        while(numbers[id] == xo){
+          id += 10;
+          countdown ++;
+        }
+        return countdown;
+    }
+    function CountLeft(id, xo) {
+        var count = 1;
+        id -= 1;
+        while(numbers[id] == xo){
+          id -= 1;
+          count ++;
+        }
+        return count;
+    }
+    function CountRight(id, xo) {
+        var count = 1;
+        id += 1;
+        while(numbers[id] == xo){
+          id += 1;
+          count ++;
+        }
+        return count;
+    }
+    function CountDownRight(id, xo) {
+        var count = 1;
+        id += 11;
+        while(numbers[id] == xo){
+          id += 11;
+          count ++;
+        }
+        return count;
+    }
+    function CountUpRight(id, xo) {
+        var count = 1;
+        id -= 9;
+        while(numbers[id] == xo){
+          id -= 9;
+          count ++;
+        }
+        return count;
+    }
+    function CountUpLeft(id, xo) {
+        var count = 1;
+        id -= 11;
+        while(numbers[id] == xo){
+          id -= 11;
+          count ++;
+        }
+        return count;
+    }
+    function CountDownLeft(id, xo) {
+        var count = 1;
+        id += 9;
+        while(numbers[id] == xo){
+          id += 9;
+          count ++;
+        }
+        return count;
+    }
+    
+    //------------------------Checks for wins
+    function checkWin(user, id)
+    {
+      if(user == "x")
+      { 
+        var test = CountUp(id, "X");
+        var test2 = CountDown(id, "X");
+        var test3 = CountLeft(id, "X");
+        var test4 = CountRight(id, "X");
+        var test5 = CountUpRight(id, "X");
+        var test7 = CountDownLeft(id, "X");
+        var test8 = CountUpLeft(id, "X");
+        var test6 = CountDownRight(id, "X");
+        
+        if(test + test2 > 5) 
+        winner("x");
+        if(test3 + test4 > 5) 
+        winner("x");
+        if(test5 + test7 > 5) 
+        winner("x");
+        if(test6 + test8 > 5) 
+        winner("x");
+      }
+      else if(user == "o")
+      {
+        var test = CountUp(id, "O");
+        var test2 = CountDown(id, "O");
+        var test3 = CountLeft(id, "O");
+        var test4 = CountRight(id, "O");
+        var test5 = CountUpRight(id, "O");
+        var test7 = CountDownLeft(id, "O");
+        var test8 = CountUpLeft(id, "O");
+        var test6 = CountDownRight(id, "O");
+        if(test + test2 > 5) 
+        winner("o");
+        if(test3 + test4 > 5) 
+        winner("o");
+        if(test5 + test7 > 5) 
+        winner("o");
+        if(test6 + test8 > 5) 
+        winner("o");
+      }
+      if(moves == 100)
+      winner("cat");
+    }
+   
+  //-----------------------------------------------------------------------
+     
+    function turn(number) //*** Event Handler for a button click
+   {var data, place;
+   place = 0;
+   moves ++;
+   data = document.getElementById(number).innerHTML;
+   if(data != "X" && data != "O")
+   {
+   if(click==1)
+   {
+   click = 2;
+   playsound();
+   doMove(number-1, "x");
+    }                       
+   else if(click==2)
+   {
+   click = 1;
+   playsound();
+   doMove(number-1, "o");
+   }
+   }
+   }
+//-----------------------------------------------------------------------
+   function doNew()
+   { i = 1;
+     moves = 0;
+     
+      var data;
+	data = "";
+                          
+	ajaxRequestPost("clear.cgi", 
+                             data, 
+                             "text/plain", true, 
+                             document.getElementById("chat"),
+                             document.getElementById("chat"),
+                             successFuncT, webServerError); 
+     
+   while(i <= 100){
+   	document.getElementById(i).innerHTML = "";
+   	document.getElementById(i).style.backgroundColor= "white";
+   	numbers[i-1] = "";
+   	i++;
+   }
+   }
+  //-----------------------------------------------------------------------
+   function over(num)
+   {
+   var value;
+   value = document.getElementById(num).innerHTML;
+   if(value != "X" && value != "O")
+   {
+   if(click==1){
+   document.getElementById(num).innerHTML= "<span style='color: lightgrey;'> X </span>";
+   document.getElementById(num).style.cursor= "pointer";
+   }
+   if(click==2){
+   document.getElementById(num).innerHTML= "<span style='color: lightgrey;'> O </span>";
+   document.getElementById(num).style.cursor= "pointer";
+   }
+   }
+   }
+   //-----------------------------------------------------------------------
+   function out(num)
+   {var value;
+   value = document.getElementById(num).innerHTML;
+   if(value != "X" && value != "O")
+   {
+   document.getElementById(num).innerHTML= "";
+   }
+   }
+    
+   /************************************************************************
+   End of JavaScript - Body of HTML Document Follows
+   *************************************************************************/ 
+   $(document).ready(function() {
+   $('body').videoBG({
+		position:"fixed",
+		zIndex:-1,
+		mp4:'Battleship.mp4',
+		ogv:'christmas_snow.ogv',
+		webm:'christmas_snow.webm',
+		poster:'christmas_snow.jpg',
+		opacity:0.5
+	});  
+	})
+   </script>
+   </head>
+   <body class="">
+   <video id=”video1” loop autoplay    preload=”auto” poster=”split.jpg”>
+   <source src=”split.mp4” type=”video/mp4” />
+   <source src=”split.webm” type=”video/webm” />
+   <source src=”split.ogv” type=”video/ogg” />
+   </video>
+    <h2>Welcome to 2 player Battleships</h2>
+	<div class="main" style=" width: 450px; margin: 0 auto; float: left;">
+	<table id="grid" border="1" widh="100%">
+   			<tr>
+   				<td id="1" onclick="turn('1');" onmouseover="over('1')" onmouseout="out('1')"></td>
+   				<td id="2" onclick="turn('2');" onmouseover="over('2')" onmouseout="out('2')"></td>
+   				<td id="3" onclick="turn('3');" onmouseover="over('3')" onmouseout="out('3')"></td>
+   				<td id="4" onclick="turn('4');" onmouseover="over('4')" onmouseout="out('4')"></td>
+   				<td id="5" onclick="turn('5');" onmouseover="over('5')" onmouseout="out('5')"></td>
+   				<td id="6" onclick="turn('6');" onmouseover="over('6')" onmouseout="out('6')"></td>
+   				<td id="7" onclick="turn('7');" onmouseover="over('7')" onmouseout="out('7')"></td>
+   				<td id="8" onclick="turn('8');" onmouseover="over('8')" onmouseout="out('8')"></td>
+   				<td id="9" onclick="turn('9');" onmouseover="over('9')" onmouseout="out('9')"></td>
+   				<td id="10" onclick="turn('10');" onmouseover="over('10')" onmouseout="out('10')"></td>
+   			</tr>
+   			<tr>
+   				<td id="11" onclick="turn('11');" onmouseover="over('11')" onmouseout="out('11')"></td>
+   				<td id="12" onclick="turn('12');" onmouseover="over('12')" onmouseout="out('12')"></td>
+   				<td id="13" onclick="turn('13');" onmouseover="over('13')" onmouseout="out('13')"></td>
+   				<td id="14" onclick="turn('14');" onmouseover="over('14')" onmouseout="out('14')"></td>
+   				<td id="15" onclick="turn('15');" onmouseover="over('15')" onmouseout="out('15')"></td>
+   				<td id="16" onclick="turn('16');" onmouseover="over('16')" onmouseout="out('16')"></td>
+   				<td id="17" onclick="turn('17');" onmouseover="over('17')" onmouseout="out('17')"></td>
+   				<td id="18" onclick="turn('18');" onmouseover="over('18')" onmouseout="out('18')"></td>
+   				<td id="19" onclick="turn('19');" onmouseover="over('19')" onmouseout="out('19')"></td>
+   				<td id="20" onclick="turn('20');" onmouseover="over('20')" onmouseout="out('20')"></td>
+   			</tr>
+   			<tr>
+   				<td id="21" onclick="turn('21');" onmouseover="over('21')" onmouseout="out('21')"></td>
+   				<td id="22" onclick="turn('22');" onmouseover="over('22')" onmouseout="out('22')"></td>
+   				<td id="23" onclick="turn('23');" onmouseover="over('23')" onmouseout="out('23')"></td>
+   				<td id="24" onclick="turn('24');" onmouseover="over('24')" onmouseout="out('24')"></td>
+   				<td id="25" onclick="turn('25');" onmouseover="over('25')" onmouseout="out('25')"></td>
+   				<td id="26" onclick="turn('26');" onmouseover="over('26')" onmouseout="out('26')"></td>
+   				<td id="27" onclick="turn('27');" onmouseover="over('27')" onmouseout="out('27')"></td>
+   				<td id="28" onclick="turn('28');" onmouseover="over('28')" onmouseout="out('28')"></td>
+   				<td id="29" onclick="turn('29');" onmouseover="over('29')" onmouseout="out('29')"></td>
+   				<td id="30" onclick="turn('30');" onmouseover="over('30')" onmouseout="out('30')"></td>
+   			</tr>
+   			<tr>
+   				<td id="31" onclick="turn('31');" onmouseover="over('31')" onmouseout="out('31')"></td>
+   				<td id="32" onclick="turn('32');" onmouseover="over('32')" onmouseout="out('32')"></td>
+   				<td id="33" onclick="turn('33');" onmouseover="over('33')" onmouseout="out('33')"></td>
+   				<td id="34" onclick="turn('34');" onmouseover="over('34')" onmouseout="out('34')"></td>
+   				<td id="35" onclick="turn('35');" onmouseover="over('35')" onmouseout="out('35')"></td>
+   				<td id="36" onclick="turn('36');" onmouseover="over('36')" onmouseout="out('36')"></td>
+   				<td id="37" onclick="turn('37');" onmouseover="over('37')" onmouseout="out('37')"></td>
+   				<td id="38" onclick="turn('38');" onmouseover="over('38')" onmouseout="out('38')"></td>
+   				<td id="39" onclick="turn('39');" onmouseover="over('39')" onmouseout="out('39')"></td>
+   				<td id="40" onclick="turn('40');" onmouseover="over('40')" onmouseout="out('40')"></td>
+   			</tr>
+   			<tr>
+   				<td id="41" onclick="turn('41');" onmouseover="over('41')" onmouseout="out('41')"></td>
+   				<td id="42" onclick="turn('42');" onmouseover="over('42')" onmouseout="out('42')"></td>
+   				<td id="43" onclick="turn('43');" onmouseover="over('43')" onmouseout="out('43')"></td>
+   				<td id="44" onclick="turn('44');" onmouseover="over('44')" onmouseout="out('44')"></td>
+   				<td id="45" onclick="turn('45');" onmouseover="over('45')" onmouseout="out('45')"></td>
+   				<td id="46" onclick="turn('46');" onmouseover="over('46')" onmouseout="out('46')"></td>
+   				<td id="47" onclick="turn('47');" onmouseover="over('47')" onmouseout="out('47')"></td>
+   				<td id="48" onclick="turn('48');" onmouseover="over('48')" onmouseout="out('48')"></td>
+   				<td id="49" onclick="turn('49');" onmouseover="over('49')" onmouseout="out('49')"></td>
+   				<td id="50" onclick="turn('50');" onmouseover="over('50')" onmouseout="out('50')"></td>
+   			</tr>
+   			<tr>
+   				<td id="51" onclick="turn('51');" onmouseover="over('51')" onmouseout="out('51')"></td>
+   				<td id="52" onclick="turn('52');" onmouseover="over('52')" onmouseout="out('52')"></td>
+   				<td id="53" onclick="turn('53');" onmouseover="over('53')" onmouseout="out('53')"></td>
+   				<td id="54" onclick="turn('54');" onmouseover="over('54')" onmouseout="out('54')"></td>
+   				<td id="55" onclick="turn('55');" onmouseover="over('55')" onmouseout="out('55')"></td>
+   				<td id="56" onclick="turn('56');" onmouseover="over('56')" onmouseout="out('56')"></td>
+   				<td id="57" onclick="turn('57');" onmouseover="over('57')" onmouseout="out('57')"></td>
+   				<td id="58" onclick="turn('58');" onmouseover="over('58')" onmouseout="out('58')"></td>
+   				<td id="59" onclick="turn('59');" onmouseover="over('59')" onmouseout="out('59')"></td>
+   				<td id="60" onclick="turn('60');" onmouseover="over('60')" onmouseout="out('60')"></td>
+   			</tr>
+   			<tr>
+   				<td id="61" onclick="turn('61');" onmouseover="over('61')" onmouseout="out('61')"></td>
+   				<td id="62" onclick="turn('62');" onmouseover="over('62')" onmouseout="out('62')"></td>
+   				<td id="63" onclick="turn('63');" onmouseover="over('63')" onmouseout="out('63')"></td>
+   				<td id="64" onclick="turn('64');" onmouseover="over('64')" onmouseout="out('64')"></td>
+   				<td id="65" onclick="turn('65');" onmouseover="over('65')" onmouseout="out('65')"></td>
+   				<td id="66" onclick="turn('66');" onmouseover="over('66')" onmouseout="out('66')"></td>
+   				<td id="67" onclick="turn('67');" onmouseover="over('67')" onmouseout="out('67')"></td>
+   				<td id="68" onclick="turn('68');" onmouseover="over('68')" onmouseout="out('68')"></td>
+   				<td id="69" onclick="turn('69');" onmouseover="over('69')" onmouseout="out('69')"></td>
+   				<td id="70" onclick="turn('70');" onmouseover="over('70')" onmouseout="out('70')"></td>
+   			</tr>
+   			<tr>
+   				<td id="71" onclick="turn('71');" onmouseover="over('71')" onmouseout="out('71')"></td>
+   				<td id="72" onclick="turn('72');" onmouseover="over('72')" onmouseout="out('72')"></td>
+   				<td id="73" onclick="turn('73');" onmouseover="over('73')" onmouseout="out('73')"></td>
+   				<td id="74" onclick="turn('74');" onmouseover="over('74')" onmouseout="out('74')"></td>
+   				<td id="75" onclick="turn('75');" onmouseover="over('75')" onmouseout="out('75')"></td>
+   				<td id="76" onclick="turn('76');" onmouseover="over('76')" onmouseout="out('76')"></td>
+   				<td id="77" onclick="turn('77');" onmouseover="over('77')" onmouseout="out('77')"></td>
+   				<td id="78" onclick="turn('78');" onmouseover="over('78')" onmouseout="out('78')"></td>
+   				<td id="79" onclick="turn('79');" onmouseover="over('79')" onmouseout="out('79')"></td>
+   				<td id="80" onclick="turn('80');" onmouseover="over('80')" onmouseout="out('80')"></td>
+   			</tr>
+   			<tr>
+   				<td id="81" onclick="turn('81');" onmouseover="over('81')" onmouseout="out('81')"></td>
+   				<td id="82" onclick="turn('82');" onmouseover="over('82')" onmouseout="out('82')"></td>
+   				<td id="83" onclick="turn('83');" onmouseover="over('83')" onmouseout="out('83')"></td>
+   				<td id="84" onclick="turn('84');" onmouseover="over('84')" onmouseout="out('84')"></td>
+   				<td id="85" onclick="turn('85');" onmouseover="over('85')" onmouseout="out('85')"></td>
+   				<td id="86" onclick="turn('86');" onmouseover="over('86')" onmouseout="out('86')"></td>
+   				<td id="87" onclick="turn('87');" onmouseover="over('87')" onmouseout="out('87')"></td>
+   				<td id="88" onclick="turn('88');" onmouseover="over('88')" onmouseout="out('88')"></td>
+   				<td id="89" onclick="turn('89');" onmouseover="over('89')" onmouseout="out('89')"></td>
+   				<td id="90" onclick="turn('90');" onmouseover="over('90')" onmouseout="out('90')"></td>
+   			</tr>
+   			<tr>
+   				<td id="91" onclick="turn('91');" onmouseover="over('91')" onmouseout="out('91')"></td>
+   				<td id="92" onclick="turn('92');" onmouseover="over('92')" onmouseout="out('92')"></td>
+   				<td id="93" onclick="turn('93');" onmouseover="over('93')" onmouseout="out('93')"></td>
+   				<td id="94" onclick="turn('94');" onmouseover="over('94')" onmouseout="out('94')"></td>
+   				<td id="95" onclick="turn('95');" onmouseover="over('95')" onmouseout="out('95')"></td>
+   				<td id="96" onclick="turn('96');" onmouseover="over('96')" onmouseout="out('96')"></td>
+   				<td id="97" onclick="turn('97');" onmouseover="over('97')" onmouseout="out('97')"></td>
+   				<td id="98" onclick="turn('98');" onmouseover="over('98')" onmouseout="out('98')"></td>
+   				<td id="99" onclick="turn('99');" onmouseover="over('99')" onmouseout="out('99')"></td>
+   				<td id="100" onclick="turn('100');" onmouseover="over('100')" onmouseout="out('100')"></td>
+   			</tr>
+   		</table>
+   		</div>
+   		<div class="main" style=" width: 450px; margin: 0 auto; float: right;">
+	<table id="grid" border="1" widh="100%">
+   			<tr>
+   				<td id="1" onclick="turn('1');" onmouseover="over('1')" onmouseout="out('1')"></td>
+   				<td id="2" onclick="turn('2');" onmouseover="over('2')" onmouseout="out('2')"></td>
+   				<td id="3" onclick="turn('3');" onmouseover="over('3')" onmouseout="out('3')"></td>
+   				<td id="4" onclick="turn('4');" onmouseover="over('4')" onmouseout="out('4')"></td>
+   				<td id="5" onclick="turn('5');" onmouseover="over('5')" onmouseout="out('5')"></td>
+   				<td id="6" onclick="turn('6');" onmouseover="over('6')" onmouseout="out('6')"></td>
+   				<td id="7" onclick="turn('7');" onmouseover="over('7')" onmouseout="out('7')"></td>
+   				<td id="8" onclick="turn('8');" onmouseover="over('8')" onmouseout="out('8')"></td>
+   				<td id="9" onclick="turn('9');" onmouseover="over('9')" onmouseout="out('9')"></td>
+   				<td id="10" onclick="turn('10');" onmouseover="over('10')" onmouseout="out('10')"></td>
+   			</tr>
+   			<tr>
+   				<td id="11" onclick="turn('11');" onmouseover="over('11')" onmouseout="out('11')"></td>
+   				<td id="12" onclick="turn('12');" onmouseover="over('12')" onmouseout="out('12')"></td>
+   				<td id="13" onclick="turn('13');" onmouseover="over('13')" onmouseout="out('13')"></td>
+   				<td id="14" onclick="turn('14');" onmouseover="over('14')" onmouseout="out('14')"></td>
+   				<td id="15" onclick="turn('15');" onmouseover="over('15')" onmouseout="out('15')"></td>
+   				<td id="16" onclick="turn('16');" onmouseover="over('16')" onmouseout="out('16')"></td>
+   				<td id="17" onclick="turn('17');" onmouseover="over('17')" onmouseout="out('17')"></td>
+   				<td id="18" onclick="turn('18');" onmouseover="over('18')" onmouseout="out('18')"></td>
+   				<td id="19" onclick="turn('19');" onmouseover="over('19')" onmouseout="out('19')"></td>
+   				<td id="20" onclick="turn('20');" onmouseover="over('20')" onmouseout="out('20')"></td>
+   			</tr>
+   			<tr>
+   				<td id="21" onclick="turn('21');" onmouseover="over('21')" onmouseout="out('21')"></td>
+   				<td id="22" onclick="turn('22');" onmouseover="over('22')" onmouseout="out('22')"></td>
+   				<td id="23" onclick="turn('23');" onmouseover="over('23')" onmouseout="out('23')"></td>
+   				<td id="24" onclick="turn('24');" onmouseover="over('24')" onmouseout="out('24')"></td>
+   				<td id="25" onclick="turn('25');" onmouseover="over('25')" onmouseout="out('25')"></td>
+   				<td id="26" onclick="turn('26');" onmouseover="over('26')" onmouseout="out('26')"></td>
+   				<td id="27" onclick="turn('27');" onmouseover="over('27')" onmouseout="out('27')"></td>
+   				<td id="28" onclick="turn('28');" onmouseover="over('28')" onmouseout="out('28')"></td>
+   				<td id="29" onclick="turn('29');" onmouseover="over('29')" onmouseout="out('29')"></td>
+   				<td id="30" onclick="turn('30');" onmouseover="over('30')" onmouseout="out('30')"></td>
+   			</tr>
+   			<tr>
+   				<td id="31" onclick="turn('31');" onmouseover="over('31')" onmouseout="out('31')"></td>
+   				<td id="32" onclick="turn('32');" onmouseover="over('32')" onmouseout="out('32')"></td>
+   				<td id="33" onclick="turn('33');" onmouseover="over('33')" onmouseout="out('33')"></td>
+   				<td id="34" onclick="turn('34');" onmouseover="over('34')" onmouseout="out('34')"></td>
+   				<td id="35" onclick="turn('35');" onmouseover="over('35')" onmouseout="out('35')"></td>
+   				<td id="36" onclick="turn('36');" onmouseover="over('36')" onmouseout="out('36')"></td>
+   				<td id="37" onclick="turn('37');" onmouseover="over('37')" onmouseout="out('37')"></td>
+   				<td id="38" onclick="turn('38');" onmouseover="over('38')" onmouseout="out('38')"></td>
+   				<td id="39" onclick="turn('39');" onmouseover="over('39')" onmouseout="out('39')"></td>
+   				<td id="40" onclick="turn('40');" onmouseover="over('40')" onmouseout="out('40')"></td>
+   			</tr>
+   			<tr>
+   				<td id="41" onclick="turn('41');" onmouseover="over('41')" onmouseout="out('41')"></td>
+   				<td id="42" onclick="turn('42');" onmouseover="over('42')" onmouseout="out('42')"></td>
+   				<td id="43" onclick="turn('43');" onmouseover="over('43')" onmouseout="out('43')"></td>
+   				<td id="44" onclick="turn('44');" onmouseover="over('44')" onmouseout="out('44')"></td>
+   				<td id="45" onclick="turn('45');" onmouseover="over('45')" onmouseout="out('45')"></td>
+   				<td id="46" onclick="turn('46');" onmouseover="over('46')" onmouseout="out('46')"></td>
+   				<td id="47" onclick="turn('47');" onmouseover="over('47')" onmouseout="out('47')"></td>
+   				<td id="48" onclick="turn('48');" onmouseover="over('48')" onmouseout="out('48')"></td>
+   				<td id="49" onclick="turn('49');" onmouseover="over('49')" onmouseout="out('49')"></td>
+   				<td id="50" onclick="turn('50');" onmouseover="over('50')" onmouseout="out('50')"></td>
+   			</tr>
+   			<tr>
+   				<td id="51" onclick="turn('51');" onmouseover="over('51')" onmouseout="out('51')"></td>
+   				<td id="52" onclick="turn('52');" onmouseover="over('52')" onmouseout="out('52')"></td>
+   				<td id="53" onclick="turn('53');" onmouseover="over('53')" onmouseout="out('53')"></td>
+   				<td id="54" onclick="turn('54');" onmouseover="over('54')" onmouseout="out('54')"></td>
+   				<td id="55" onclick="turn('55');" onmouseover="over('55')" onmouseout="out('55')"></td>
+   				<td id="56" onclick="turn('56');" onmouseover="over('56')" onmouseout="out('56')"></td>
+   				<td id="57" onclick="turn('57');" onmouseover="over('57')" onmouseout="out('57')"></td>
+   				<td id="58" onclick="turn('58');" onmouseover="over('58')" onmouseout="out('58')"></td>
+   				<td id="59" onclick="turn('59');" onmouseover="over('59')" onmouseout="out('59')"></td>
+   				<td id="60" onclick="turn('60');" onmouseover="over('60')" onmouseout="out('60')"></td>
+   			</tr>
+   			<tr>
+   				<td id="61" onclick="turn('61');" onmouseover="over('61')" onmouseout="out('61')"></td>
+   				<td id="62" onclick="turn('62');" onmouseover="over('62')" onmouseout="out('62')"></td>
+   				<td id="63" onclick="turn('63');" onmouseover="over('63')" onmouseout="out('63')"></td>
+   				<td id="64" onclick="turn('64');" onmouseover="over('64')" onmouseout="out('64')"></td>
+   				<td id="65" onclick="turn('65');" onmouseover="over('65')" onmouseout="out('65')"></td>
+   				<td id="66" onclick="turn('66');" onmouseover="over('66')" onmouseout="out('66')"></td>
+   				<td id="67" onclick="turn('67');" onmouseover="over('67')" onmouseout="out('67')"></td>
+   				<td id="68" onclick="turn('68');" onmouseover="over('68')" onmouseout="out('68')"></td>
+   				<td id="69" onclick="turn('69');" onmouseover="over('69')" onmouseout="out('69')"></td>
+   				<td id="70" onclick="turn('70');" onmouseover="over('70')" onmouseout="out('70')"></td>
+   			</tr>
+   			<tr>
+   				<td id="71" onclick="turn('71');" onmouseover="over('71')" onmouseout="out('71')"></td>
+   				<td id="72" onclick="turn('72');" onmouseover="over('72')" onmouseout="out('72')"></td>
+   				<td id="73" onclick="turn('73');" onmouseover="over('73')" onmouseout="out('73')"></td>
+   				<td id="74" onclick="turn('74');" onmouseover="over('74')" onmouseout="out('74')"></td>
+   				<td id="75" onclick="turn('75');" onmouseover="over('75')" onmouseout="out('75')"></td>
+   				<td id="76" onclick="turn('76');" onmouseover="over('76')" onmouseout="out('76')"></td>
+   				<td id="77" onclick="turn('77');" onmouseover="over('77')" onmouseout="out('77')"></td>
+   				<td id="78" onclick="turn('78');" onmouseover="over('78')" onmouseout="out('78')"></td>
+   				<td id="79" onclick="turn('79');" onmouseover="over('79')" onmouseout="out('79')"></td>
+   				<td id="80" onclick="turn('80');" onmouseover="over('80')" onmouseout="out('80')"></td>
+   			</tr>
+   			<tr>
+   				<td id="81" onclick="turn('81');" onmouseover="over('81')" onmouseout="out('81')"></td>
+   				<td id="82" onclick="turn('82');" onmouseover="over('82')" onmouseout="out('82')"></td>
+   				<td id="83" onclick="turn('83');" onmouseover="over('83')" onmouseout="out('83')"></td>
+   				<td id="84" onclick="turn('84');" onmouseover="over('84')" onmouseout="out('84')"></td>
+   				<td id="85" onclick="turn('85');" onmouseover="over('85')" onmouseout="out('85')"></td>
+   				<td id="86" onclick="turn('86');" onmouseover="over('86')" onmouseout="out('86')"></td>
+   				<td id="87" onclick="turn('87');" onmouseover="over('87')" onmouseout="out('87')"></td>
+   				<td id="88" onclick="turn('88');" onmouseover="over('88')" onmouseout="out('88')"></td>
+   				<td id="89" onclick="turn('89');" onmouseover="over('89')" onmouseout="out('89')"></td>
+   				<td id="90" onclick="turn('90');" onmouseover="over('90')" onmouseout="out('90')"></td>
+   			</tr>
+   			<tr>
+   				<td id="91" onclick="turn('91');" onmouseover="over('91')" onmouseout="out('91')"></td>
+   				<td id="92" onclick="turn('92');" onmouseover="over('92')" onmouseout="out('92')"></td>
+   				<td id="93" onclick="turn('93');" onmouseover="over('93')" onmouseout="out('93')"></td>
+   				<td id="94" onclick="turn('94');" onmouseover="over('94')" onmouseout="out('94')"></td>
+   				<td id="95" onclick="turn('95');" onmouseover="over('95')" onmouseout="out('95')"></td>
+   				<td id="96" onclick="turn('96');" onmouseover="over('96')" onmouseout="out('96')"></td>
+   				<td id="97" onclick="turn('97');" onmouseover="over('97')" onmouseout="out('97')"></td>
+   				<td id="98" onclick="turn('98');" onmouseover="over('98')" onmouseout="out('98')"></td>
+   				<td id="99" onclick="turn('99');" onmouseover="over('99')" onmouseout="out('99')"></td>
+   				<td id="100" onclick="turn('100');" onmouseover="over('100')" onmouseout="out('100')"></td>
+   			</tr>
+   		</table>
+   		</div>
+</br>
+	<div id="msg" class="center"></div>
+	<span id="soundeffect"></span>
+   </body>
+   </html>
