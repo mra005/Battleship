@@ -6,13 +6,12 @@
    <link rel="icon" type="image/x-icon" href="images/favicon5.ico" />
    <style type="text/css">
    body{font-family:arial; }
-   .main{ padding:1.7em; border: 4px solid orange; border-radius:20px;}
+   .main{ padding:1.7em; border: 4px solid #32CD32; border-radius:20px; width: 450px; margin: 0 auto; float: left; color: white; text-align: center;}
    .wins{border: 2px solid black;float:right;}
-   h2{text-align:center; color:orange;text-shadow: 2px 1px 2px darkgrey;}
-   table {border-collapse:collapse;border:3px solid white;}
+   h2{text-align:center; color:#32CD32;text-shadow: 2px 1px 2px darkgrey;}
+   table {border-collapse:collapse;border:3px solid black;}
    th {border:2px solid black; color: orange;}
-   td {height: 40px; width:40px !important; border:2px solid black; text-align:center;}
-   .chat {text-align: center; color: orange; box-shadow: 5px 5px 5px #888888; border: 4px solid orange; border: 3px solid orange; border-radius:20px; background-color: white; position: fixed; top: 110px; right:0px; width: 250px; height: 400px;}
+   td {height: 40px; width:40px !important; border:2px solid grey; text-align:center;}
    .veiw{border-top: 3px solid orange; border-bottom: 3px solid orange; height: 305px; overflow: scroll;text-align: left; color: grey; padding: 0px 6px 0px 6px;}
    </style>
    <script type="text/javascript" src="js/ajaxReq.js"></script>
@@ -84,8 +83,7 @@
         cat = 0;
         soundfile = "audio/button3.mp3";
         
-	var myVar=setInterval(function(){doRefresh()},5000);  
-	var myVar2=setInterval(function(){doRefreshTwo()},2500);
+	//var myVar=setInterval(function(){doRefresh()},2000); 
         
     function playsound(){
 		document.getElementById("soundeffect").innerHTML=
@@ -131,21 +129,6 @@
                              document.getElementById("chat"),
                              document.getElementById("chat"),
                              successFunc, webServerError); 
-   }
-   
-   //-----------------------------------------------------------------------
-   
-   function doRefreshTwo() //*** Event Handler for a button click
-   {
-   var data;
-	data = "";
-                          
-	ajaxRequestPost("refresh2.cgi", 
-                             data, 
-                             "text/plain", true, 
-                             document.getElementById("chat"),
-                             document.getElementById("chat"),
-                             successFuncT, webServerError); 
    }
    
    //-----------------------------------------------------------------------
@@ -298,25 +281,77 @@
    
   //-----------------------------------------------------------------------
      
-    function turn(number) //*** Event Handler for a button click
-   {var data, place;
-   place = 0;
-   moves ++;
-   data = document.getElementById(number).innerHTML;
-   if(data != "X" && data != "O")
+     function turn(id)
+     {
+     var test = 0;
+     while(test < pos.length)
+     {
+     if(pos[test]-id== 0)
+     {
+     document.getElementById(id).style.backgroundColor= "red";
+     return 0;
+     }
+     test++;
+     }
+     //else
+     document.getElementById(id).style.backgroundColor= "yellow";
+     }
+     
+  //-----------------------------------------------------------------------
+    function placeShip(id, ort) //*** Event Handler for a button click
+   {var place = 0;
+   var count = 0;
+   if(ort == "1")
    {
-   if(click==1)
-   {
-   click = 2;
+   document.getElementById(id+"d").style.backgroundColor= "#0099CC";
+   		id -= 9;
+        while(count < 3){
+          document.getElementById(id+"d").style.backgroundColor= "#0099CC";
+          id -= 9;
+          count ++;
+        }
+    count = 0;
    playsound();
-   doMove(number-1, "x");
-    }                       
-   else if(click==2)
-   {
-   click = 1;
-   playsound();
-   doMove(number-1, "o");
+ //  doMove(number-1, "o");
    }
+   if(ort == "2")
+   {
+   document.getElementById(id+"d").style.backgroundColor= "#0099CC";
+   		id += 1;
+        while(count < 3){
+          document.getElementById(id+"d").style.backgroundColor= "#0099CC";
+          id += 1;
+          count ++;
+        }
+    count = 0;
+   playsound();
+  // doMove(number-1, "o");
+   }
+   if(ort == "3")
+   {
+   document.getElementById(id+"d").style.backgroundColor= "#0099CC";
+   		id += 11;
+        while(count < 3){
+          document.getElementById(id+"d").style.backgroundColor= "#0099CC";
+          id += 11;
+          count ++;
+        }
+    count = 0;
+   playsound();
+  // doMove(number-1, "o");
+   }
+   if(ort == "4")
+   {
+   document.getElementById(id+"d").style.backgroundColor= "#0099CC";
+   		id += 10;
+        while(count < 3){
+          document.getElementById(id+"d").style.backgroundColor= "#0099CC";
+          id += 10;
+          count ++;
+        }
+    count = 0;
+   playsound();
+ //  doMove(number-1, "o");
    }
    }
 //-----------------------------------------------------------------------
@@ -345,53 +380,144 @@
    function over(num)
    {
    var value;
-   value = document.getElementById(num).innerHTML;
-   if(value != "X" && value != "O")
+   value = document.getElementById(num).style.backgroundColor;
+   if(value == "")
    {
-   if(click==1){
-   document.getElementById(num).innerHTML= "<span style='color: lightgrey;'> X </span>";
+   document.getElementById(num).innerHTML= "<span style='color: lightgrey;'> + </span>";
    document.getElementById(num).style.cursor= "pointer";
-   }
-   if(click==2){
-   document.getElementById(num).innerHTML= "<span style='color: lightgrey;'> O </span>";
-   document.getElementById(num).style.cursor= "pointer";
-   }
    }
    }
    //-----------------------------------------------------------------------
    function out(num)
    {var value;
    value = document.getElementById(num).innerHTML;
-   if(value != "X" && value != "O")
+   if(value != " ")
    {
    document.getElementById(num).innerHTML= "";
    }
+   }
+   
+   //-----------------------------------------------------------------------
+   //Draw Ship Function
+   function drawShip(id)
+   {
+   	if(start - id == -3)
+   	{
+   		document.getElementById(id).style.backgroundColor= "#0099CC";
+   		document.getElementById(id-1).style.backgroundColor= "#0099CC";
+   		document.getElementById(id-2).style.backgroundColor= "#0099CC";
+   		ships++;
+   		arrayShips(id-.5, id-1.5, id-2.5, id-3.5)
+   	}
+   	else if(start - id == 3)
+   	{
+   		document.getElementById(id).style.backgroundColor= "#0099CC";
+   		document.getElementById(start-1).style.backgroundColor= "#0099CC";
+   		document.getElementById(start-2).style.backgroundColor= "#0099CC";
+   		ships++;
+   	}
+   	else if(start - id == 30)
+   	{
+   		document.getElementById(id).style.backgroundColor= "#0099CC";
+   		document.getElementById(start-10).style.backgroundColor= "#0099CC";
+   		document.getElementById(start-20).style.backgroundColor= "#0099CC";
+   		ships++;
+   	}
+   	else if(start - id == -30)
+   	{
+   		document.getElementById(id).style.backgroundColor= "#0099CC";
+   		document.getElementById(id-10).style.backgroundColor= "#0099CC";
+   		document.getElementById(id-20).style.backgroundColor= "#0099CC";
+   		ships++;
+   	}
+   	else if(start - id == 33)
+   	{
+   		document.getElementById(id).style.backgroundColor= "#0099CC";
+   		document.getElementById(start-11).style.backgroundColor= "#0099CC";
+   		document.getElementById(start-22).style.backgroundColor= "#0099CC";
+   		ships++;
+   	}
+   	else if(start - id == -33)
+   	{
+   		document.getElementById(id).style.backgroundColor= "#0099CC";
+   		document.getElementById(id-11).style.backgroundColor= "#0099CC";
+   		document.getElementById(id-22).style.backgroundColor= "#0099CC";
+   		ships++;
+   	}
+   	else
+   	{
+   		document.getElementById(start).style.backgroundColor= "black";
+   	}
+   }
+   
+   function arrayShips(a, b, c, d)
+   {
+   pos[posCont]=a;
+   posCont++;
+   pos[posCont]=b;
+   posCont++;
+   pos[posCont]=c;
+   posCont++;
+   pos[posCont]=d;
+   posCont++;
+   }
+   //-----------------------------------------------------------------------
+   function endShip(ev)
+   {
+   if(ships<3)
+   	{
+   drawShip(ev.target.id);
+   }
+   }
+   //-----------------------------------------------------------------------
+   function hoverShip(ev)
+   {
+     ev.target.style.backgroundColor= "#0099CC";
+     return 0;
+   }
+   //-----------------------------------------------------------------------
+   function startShip(ev)
+   {
+   		if(ships<3)
+   		{
+   			ev.target.style.backgroundColor= "#0099CC";
+   			//document.getElementById("dGrid").addEventListener("mouseover", hoverShip);
+   			start=ev.target.id;
+   		}
+   }
+   
+   //-----------------------------------------------------------------------
+   //Global Var
+   var start, ships=0, pos=[], posCont = 0;
+   window.onload = function()
+   {
+   
+   document.getElementById("dGrid").addEventListener("mousedown", startShip);
+   document.addEventListener("mouseup", endShip);
+   
+   
+  // document.getElementById("dGrid").addEventListener("mouseover", function(){ this.style.backgroundColor= "#0099CC"; });
+   /***
+    var ship1 = prompt("Please enter starting point for ship one", "1");
+    while (isNaN(ship1))
+    {
+    var ship1 = prompt("Please enter starting point for ship one", "1");
+    }
+   	var or1 = prompt("Please enter orientation for ship one\nEnter '1' for UR\nEnter '2' for R\nEnter '3' for DR\nEnter '4' for D", "1");
+   	placeShip(ship1, or1);
+***/
    }
     
    /************************************************************************
    End of JavaScript - Body of HTML Document Follows
    *************************************************************************/ 
-   $(document).ready(function() {
-   $('body').videoBG({
-		position:"fixed",
-		zIndex:-1,
-		mp4:'Battleship.mp4',
-		ogv:'christmas_snow.ogv',
-		webm:'christmas_snow.webm',
-		poster:'christmas_snow.jpg',
-		opacity:0.5
-	});  
-	})
+   
    </script>
    </head>
-   <body class="">
-   <video id=”video1” loop autoplay    preload=”auto” poster=”split.jpg”>
-   <source src=”split.mp4” type=”video/mp4” />
-   <source src=”split.webm” type=”video/webm” />
-   <source src=”split.ogv” type=”video/ogg” />
-   </video>
+   <body class="" style="background-color: black;">
     <h2>Welcome to 2 player Battleships</h2>
-	<div class="main" style=" width: 450px; margin: 0 auto; float: left;">
+	<div class="main" style=" ">
+	Attack Grid
 	<table id="grid" border="1" widh="100%">
    			<tr>
    				<td id="1" onclick="turn('1');" onmouseover="over('1')" onmouseout="out('1')"></td>
@@ -515,127 +641,130 @@
    			</tr>
    		</table>
    		</div>
+   		
+   		
    		<div class="main" style=" width: 450px; margin: 0 auto; float: right;">
-	<table id="grid" border="1" widh="100%">
+   		Defend Grid
+	<table id="dGrid" border="1" widh="100%">
    			<tr>
-   				<td id="1" onclick="turn('1');" onmouseover="over('1')" onmouseout="out('1')"></td>
-   				<td id="2" onclick="turn('2');" onmouseover="over('2')" onmouseout="out('2')"></td>
-   				<td id="3" onclick="turn('3');" onmouseover="over('3')" onmouseout="out('3')"></td>
-   				<td id="4" onclick="turn('4');" onmouseover="over('4')" onmouseout="out('4')"></td>
-   				<td id="5" onclick="turn('5');" onmouseover="over('5')" onmouseout="out('5')"></td>
-   				<td id="6" onclick="turn('6');" onmouseover="over('6')" onmouseout="out('6')"></td>
-   				<td id="7" onclick="turn('7');" onmouseover="over('7')" onmouseout="out('7')"></td>
-   				<td id="8" onclick="turn('8');" onmouseover="over('8')" onmouseout="out('8')"></td>
-   				<td id="9" onclick="turn('9');" onmouseover="over('9')" onmouseout="out('9')"></td>
-   				<td id="10" onclick="turn('10');" onmouseover="over('10')" onmouseout="out('10')"></td>
+   				<td id="1.5"></td>
+   				<td id="2.5"></td>
+   				<td id="3.5"></td>
+   				<td id="4.5"></td>
+   				<td id="5.5"></td>
+   				<td id="6.5"></td>
+   				<td id="7.5"></td>
+   				<td id="8.5"></td>
+   				<td id="9.5"></td>
+   				<td id="10.5"></td>
    			</tr>
    			<tr>
-   				<td id="11" onclick="turn('11');" onmouseover="over('11')" onmouseout="out('11')"></td>
-   				<td id="12" onclick="turn('12');" onmouseover="over('12')" onmouseout="out('12')"></td>
-   				<td id="13" onclick="turn('13');" onmouseover="over('13')" onmouseout="out('13')"></td>
-   				<td id="14" onclick="turn('14');" onmouseover="over('14')" onmouseout="out('14')"></td>
-   				<td id="15" onclick="turn('15');" onmouseover="over('15')" onmouseout="out('15')"></td>
-   				<td id="16" onclick="turn('16');" onmouseover="over('16')" onmouseout="out('16')"></td>
-   				<td id="17" onclick="turn('17');" onmouseover="over('17')" onmouseout="out('17')"></td>
-   				<td id="18" onclick="turn('18');" onmouseover="over('18')" onmouseout="out('18')"></td>
-   				<td id="19" onclick="turn('19');" onmouseover="over('19')" onmouseout="out('19')"></td>
-   				<td id="20" onclick="turn('20');" onmouseover="over('20')" onmouseout="out('20')"></td>
+   				<td id="11.5"></td>
+   				<td id="12.5"></td>
+   				<td id="13.5"></td>
+   				<td id="14.5"></td>
+   				<td id="15.5"></td>
+   				<td id="16.5"></td>
+   				<td id="17.5"></td>
+   				<td id="18.5"></td>
+   				<td id="19.5"></td>
+   				<td id="20.5"></td>
    			</tr>
    			<tr>
-   				<td id="21" onclick="turn('21');" onmouseover="over('21')" onmouseout="out('21')"></td>
-   				<td id="22" onclick="turn('22');" onmouseover="over('22')" onmouseout="out('22')"></td>
-   				<td id="23" onclick="turn('23');" onmouseover="over('23')" onmouseout="out('23')"></td>
-   				<td id="24" onclick="turn('24');" onmouseover="over('24')" onmouseout="out('24')"></td>
-   				<td id="25" onclick="turn('25');" onmouseover="over('25')" onmouseout="out('25')"></td>
-   				<td id="26" onclick="turn('26');" onmouseover="over('26')" onmouseout="out('26')"></td>
-   				<td id="27" onclick="turn('27');" onmouseover="over('27')" onmouseout="out('27')"></td>
-   				<td id="28" onclick="turn('28');" onmouseover="over('28')" onmouseout="out('28')"></td>
-   				<td id="29" onclick="turn('29');" onmouseover="over('29')" onmouseout="out('29')"></td>
-   				<td id="30" onclick="turn('30');" onmouseover="over('30')" onmouseout="out('30')"></td>
+   				<td id="21.5"></td>
+   				<td id="22.5"></td>
+   				<td id="23.5"></td>
+   				<td id="24.5"></td>
+   				<td id="25.5"></td>
+   				<td id="26.5"></td>
+   				<td id="27.5"></td>
+   				<td id="28.5"></td>
+   				<td id="29.5"></td>
+   				<td id="30.5"></td>
    			</tr>
    			<tr>
-   				<td id="31" onclick="turn('31');" onmouseover="over('31')" onmouseout="out('31')"></td>
-   				<td id="32" onclick="turn('32');" onmouseover="over('32')" onmouseout="out('32')"></td>
-   				<td id="33" onclick="turn('33');" onmouseover="over('33')" onmouseout="out('33')"></td>
-   				<td id="34" onclick="turn('34');" onmouseover="over('34')" onmouseout="out('34')"></td>
-   				<td id="35" onclick="turn('35');" onmouseover="over('35')" onmouseout="out('35')"></td>
-   				<td id="36" onclick="turn('36');" onmouseover="over('36')" onmouseout="out('36')"></td>
-   				<td id="37" onclick="turn('37');" onmouseover="over('37')" onmouseout="out('37')"></td>
-   				<td id="38" onclick="turn('38');" onmouseover="over('38')" onmouseout="out('38')"></td>
-   				<td id="39" onclick="turn('39');" onmouseover="over('39')" onmouseout="out('39')"></td>
-   				<td id="40" onclick="turn('40');" onmouseover="over('40')" onmouseout="out('40')"></td>
+   				<td id="31.5"></td>
+   				<td id="32.5"></td>
+   				<td id="33.5"></td>
+   				<td id="34.5"></td>
+   				<td id="35.5"></td>
+   				<td id="36.5"></td>
+   				<td id="37.5"></td>
+   				<td id="38.5"></td>
+   				<td id="39.5"></td>
+   				<td id="40.5"></td>
    			</tr>
    			<tr>
-   				<td id="41" onclick="turn('41');" onmouseover="over('41')" onmouseout="out('41')"></td>
-   				<td id="42" onclick="turn('42');" onmouseover="over('42')" onmouseout="out('42')"></td>
-   				<td id="43" onclick="turn('43');" onmouseover="over('43')" onmouseout="out('43')"></td>
-   				<td id="44" onclick="turn('44');" onmouseover="over('44')" onmouseout="out('44')"></td>
-   				<td id="45" onclick="turn('45');" onmouseover="over('45')" onmouseout="out('45')"></td>
-   				<td id="46" onclick="turn('46');" onmouseover="over('46')" onmouseout="out('46')"></td>
-   				<td id="47" onclick="turn('47');" onmouseover="over('47')" onmouseout="out('47')"></td>
-   				<td id="48" onclick="turn('48');" onmouseover="over('48')" onmouseout="out('48')"></td>
-   				<td id="49" onclick="turn('49');" onmouseover="over('49')" onmouseout="out('49')"></td>
-   				<td id="50" onclick="turn('50');" onmouseover="over('50')" onmouseout="out('50')"></td>
+   				<td id="41.5"></td>
+   				<td id="42.5"></td>
+   				<td id="43.5"></td>
+   				<td id="44.5"></td>
+   				<td id="45.5"></td>
+   				<td id="46.5"></td>
+   				<td id="47.5"></td>
+   				<td id="48.5"></td>
+   				<td id="49.5"></td>
+   				<td id="50.5"></td>
    			</tr>
    			<tr>
-   				<td id="51" onclick="turn('51');" onmouseover="over('51')" onmouseout="out('51')"></td>
-   				<td id="52" onclick="turn('52');" onmouseover="over('52')" onmouseout="out('52')"></td>
-   				<td id="53" onclick="turn('53');" onmouseover="over('53')" onmouseout="out('53')"></td>
-   				<td id="54" onclick="turn('54');" onmouseover="over('54')" onmouseout="out('54')"></td>
-   				<td id="55" onclick="turn('55');" onmouseover="over('55')" onmouseout="out('55')"></td>
-   				<td id="56" onclick="turn('56');" onmouseover="over('56')" onmouseout="out('56')"></td>
-   				<td id="57" onclick="turn('57');" onmouseover="over('57')" onmouseout="out('57')"></td>
-   				<td id="58" onclick="turn('58');" onmouseover="over('58')" onmouseout="out('58')"></td>
-   				<td id="59" onclick="turn('59');" onmouseover="over('59')" onmouseout="out('59')"></td>
-   				<td id="60" onclick="turn('60');" onmouseover="over('60')" onmouseout="out('60')"></td>
+   				<td id="51.5"></td>
+   				<td id="52.5"></td>
+   				<td id="53.5"></td>
+   				<td id="54.5"></td>
+   				<td id="55.5"></td>
+   				<td id="56.5"></td>
+   				<td id="57.5"></td>
+   				<td id="58.5"></td>
+   				<td id="59.5"></td>
+   				<td id="60.5"></td>
    			</tr>
    			<tr>
-   				<td id="61" onclick="turn('61');" onmouseover="over('61')" onmouseout="out('61')"></td>
-   				<td id="62" onclick="turn('62');" onmouseover="over('62')" onmouseout="out('62')"></td>
-   				<td id="63" onclick="turn('63');" onmouseover="over('63')" onmouseout="out('63')"></td>
-   				<td id="64" onclick="turn('64');" onmouseover="over('64')" onmouseout="out('64')"></td>
-   				<td id="65" onclick="turn('65');" onmouseover="over('65')" onmouseout="out('65')"></td>
-   				<td id="66" onclick="turn('66');" onmouseover="over('66')" onmouseout="out('66')"></td>
-   				<td id="67" onclick="turn('67');" onmouseover="over('67')" onmouseout="out('67')"></td>
-   				<td id="68" onclick="turn('68');" onmouseover="over('68')" onmouseout="out('68')"></td>
-   				<td id="69" onclick="turn('69');" onmouseover="over('69')" onmouseout="out('69')"></td>
-   				<td id="70" onclick="turn('70');" onmouseover="over('70')" onmouseout="out('70')"></td>
+   				<td id="61.5"></td>
+   				<td id="62.5"></td>
+   				<td id="63.5"></td>
+   				<td id="64.5"></td>
+   				<td id="65.5"></td>
+   				<td id="66.5"></td>
+   				<td id="67.5"></td>
+   				<td id="68.5"></td>
+   				<td id="69.5"></td>
+   				<td id="70.5"></td>
    			</tr>
    			<tr>
-   				<td id="71" onclick="turn('71');" onmouseover="over('71')" onmouseout="out('71')"></td>
-   				<td id="72" onclick="turn('72');" onmouseover="over('72')" onmouseout="out('72')"></td>
-   				<td id="73" onclick="turn('73');" onmouseover="over('73')" onmouseout="out('73')"></td>
-   				<td id="74" onclick="turn('74');" onmouseover="over('74')" onmouseout="out('74')"></td>
-   				<td id="75" onclick="turn('75');" onmouseover="over('75')" onmouseout="out('75')"></td>
-   				<td id="76" onclick="turn('76');" onmouseover="over('76')" onmouseout="out('76')"></td>
-   				<td id="77" onclick="turn('77');" onmouseover="over('77')" onmouseout="out('77')"></td>
-   				<td id="78" onclick="turn('78');" onmouseover="over('78')" onmouseout="out('78')"></td>
-   				<td id="79" onclick="turn('79');" onmouseover="over('79')" onmouseout="out('79')"></td>
-   				<td id="80" onclick="turn('80');" onmouseover="over('80')" onmouseout="out('80')"></td>
+   				<td id="71.5"></td>
+   				<td id="72.5"></td>
+   				<td id="73.5"></td>
+   				<td id="74.5"></td>
+   				<td id="75.5"></td>
+   				<td id="76.5"></td>
+   				<td id="77.5"></td>
+   				<td id="78.5"></td>
+   				<td id="79.5"></td>
+   				<td id="80.5"></td>
    			</tr>
    			<tr>
-   				<td id="81" onclick="turn('81');" onmouseover="over('81')" onmouseout="out('81')"></td>
-   				<td id="82" onclick="turn('82');" onmouseover="over('82')" onmouseout="out('82')"></td>
-   				<td id="83" onclick="turn('83');" onmouseover="over('83')" onmouseout="out('83')"></td>
-   				<td id="84" onclick="turn('84');" onmouseover="over('84')" onmouseout="out('84')"></td>
-   				<td id="85" onclick="turn('85');" onmouseover="over('85')" onmouseout="out('85')"></td>
-   				<td id="86" onclick="turn('86');" onmouseover="over('86')" onmouseout="out('86')"></td>
-   				<td id="87" onclick="turn('87');" onmouseover="over('87')" onmouseout="out('87')"></td>
-   				<td id="88" onclick="turn('88');" onmouseover="over('88')" onmouseout="out('88')"></td>
-   				<td id="89" onclick="turn('89');" onmouseover="over('89')" onmouseout="out('89')"></td>
-   				<td id="90" onclick="turn('90');" onmouseover="over('90')" onmouseout="out('90')"></td>
+   				<td id="81.5"></td>
+   				<td id="82.5"></td>
+   				<td id="83.5"></td>
+   				<td id="84.5"></td>
+   				<td id="85.5"></td>
+   				<td id="86.5"></td>
+   				<td id="87.5"></td>
+   				<td id="88.5"></td>
+   				<td id="89.5"></td>
+   				<td id="90.5"></td>
    			</tr>
    			<tr>
-   				<td id="91" onclick="turn('91');" onmouseover="over('91')" onmouseout="out('91')"></td>
-   				<td id="92" onclick="turn('92');" onmouseover="over('92')" onmouseout="out('92')"></td>
-   				<td id="93" onclick="turn('93');" onmouseover="over('93')" onmouseout="out('93')"></td>
-   				<td id="94" onclick="turn('94');" onmouseover="over('94')" onmouseout="out('94')"></td>
-   				<td id="95" onclick="turn('95');" onmouseover="over('95')" onmouseout="out('95')"></td>
-   				<td id="96" onclick="turn('96');" onmouseover="over('96')" onmouseout="out('96')"></td>
-   				<td id="97" onclick="turn('97');" onmouseover="over('97')" onmouseout="out('97')"></td>
-   				<td id="98" onclick="turn('98');" onmouseover="over('98')" onmouseout="out('98')"></td>
-   				<td id="99" onclick="turn('99');" onmouseover="over('99')" onmouseout="out('99')"></td>
-   				<td id="100" onclick="turn('100');" onmouseover="over('100')" onmouseout="out('100')"></td>
+   				<td id="91.5"></td>
+   				<td id="92.5"></td>
+   				<td id="93.5"></td>
+   				<td id="94.5"></td>
+   				<td id="95.5"></td>
+   				<td id="96.5"></td>
+   				<td id="97.5"></td>
+   				<td id="98.5"></td>
+   				<td id="99.5"></td>
+   				<td id="100.5"></td>
    			</tr>
    		</table>
    		</div>
