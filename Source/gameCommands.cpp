@@ -52,19 +52,52 @@ main(){
 		return 0;
 	}
 	//** Connects to database
-	db.open(BATTLESHIP_DB);
+	db.open(battleship_db);
 	
-	//** Creates Players Table --> Houses Player #, Players Name, and Players skey
-		query = "CREATE TABLE Players" +
-		"(playerNum INT NOT NULL," +
-		"playerName VARCHAR(20) NOT NULL," + 
-		"skey VARCHAR(20) NOT NULL," +
-		"PRIMARY KEY(playerNum),"+
-		"FOREIGN KEY(playerName) REFERENCES Ships(player),Shots(player));";
-		//** Connect to DB
-		
-
-	
+		//** Insert players information into Players table
+		query = "INSERT INTO Players (player_name, skey) VALUES (?, ?)"
+		db.prepare(query);
+		thisPlayer = hubInf.userID();
+		thisPlayerSkey = hubInf.userSkey();
+		db.bind(1, thisPlayer);
+		db.bind(2, thisPlayerSkey);
+		dbResult = db.runPrepared();
+		if (dbResult != DB_SUCCESS) {
+			cout << "ERROR" << DLM << "Failed to run prepared query [" << dbResult << "] " << " \"" << query << "\"" << endl;
+			return 0;
+		}
+	db.close(battleship_db);
 }//end main
 
+attack(){
+	string username;
+	int shot;
+
+	//** Connects to database
+	db.open(battleship_db);
+		//** Inserts players shot into Shot
+		query = "INSERT INTO Shots (player_name, shot) VALUES (?,?)"
+		db.prepare(query);
+		thisPlayer = hubInf.userID();
+		db.bind(1,thisPlayer);
+		db.bind(2,shot);
+		dbResult = db.runPrepared();
+		if (dbResult != DB_SUCCESS) {
+			cout << "ERROR" << DLM << "Failed to run prepared query [" << dbResult << "] " << " \"" << query << "\"" << endl;
+			return 0;
+		}
+	db.close(battleship_db);
+}//end attack
+
+combat(){
+/* combat() will pull the values of the ship locations and tokenize them into 12
+ individual values which will then be compared to the values pulled from the shots
+ taken from other player. If values match ships value will be replaced as NULL if all 4 
+ cells are hit. Returns win condition if all of a players ships are set to value NULL.
+*/
+	//**Connects to database
+	db.open(battleship_db);
+	query = "SELECT Ship1, Ship2, Ship3 FROM Ships WHERE ?
+
+}//end combat
 
