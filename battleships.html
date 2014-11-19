@@ -415,6 +415,7 @@
    		document.getElementById(start-1).style.backgroundColor= "#0099CC";
    		document.getElementById(start-2).style.backgroundColor= "#0099CC";
    		ships++;
+   		arrayShips(start-.5, start-1.5, start-2.5, start-3.5)
    	}
    	else if(start - id == 30)
    	{
@@ -422,6 +423,7 @@
    		document.getElementById(start-10).style.backgroundColor= "#0099CC";
    		document.getElementById(start-20).style.backgroundColor= "#0099CC";
    		ships++;
+   		arrayShips(start-.5, start-10.5, start-20.5, start-30.5)
    	}
    	else if(start - id == -30)
    	{
@@ -429,6 +431,7 @@
    		document.getElementById(id-10).style.backgroundColor= "#0099CC";
    		document.getElementById(id-20).style.backgroundColor= "#0099CC";
    		ships++;
+   		arrayShips(id-.5, id-10.5, id-20.5, id-30.5)
    	}
    	else if(start - id == 33)
    	{
@@ -436,6 +439,7 @@
    		document.getElementById(start-11).style.backgroundColor= "#0099CC";
    		document.getElementById(start-22).style.backgroundColor= "#0099CC";
    		ships++;
+   		arrayShips(start-.5, start-11.5, start-22.5, start-33.5)
    	}
    	else if(start - id == -33)
    	{
@@ -443,6 +447,23 @@
    		document.getElementById(id-11).style.backgroundColor= "#0099CC";
    		document.getElementById(id-22).style.backgroundColor= "#0099CC";
    		ships++;
+   		arrayShips(id-.5, id-11.5, id-22.5, id-33.5)
+   	}
+   	else if(start - id == -27)
+   	{
+   		document.getElementById(id).style.backgroundColor= "#0099CC";
+   		document.getElementById(id-9).style.backgroundColor= "#0099CC";
+   		document.getElementById(id-18).style.backgroundColor= "#0099CC";
+   		ships++;
+   		arrayShips(id-.5, id-9.5, id-18.5, id-27.5)
+   	}
+   	else if(start - id == 27)
+   	{
+   		document.getElementById(id).style.backgroundColor= "#0099CC";
+   		document.getElementById(start-9).style.backgroundColor= "#0099CC";
+   		document.getElementById(start-18).style.backgroundColor= "#0099CC";
+   		ships++;
+   		arrayShips(start-.5, start-9.5, start-18.5, start-27.5)
    	}
    	else
    	{
